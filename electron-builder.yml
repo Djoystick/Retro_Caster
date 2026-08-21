@@ -51,5 +51,6 @@ appImage:
   artifactName: retrocaster-app-${version}.AppImage
 npmRebuild: false
 publish:
-  provider: generic
-  url: https://example.com/auto-updates
+  provider: github
+  owner: Djoystick
+  repo: Retro_Caster
