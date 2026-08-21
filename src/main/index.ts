@@ -157,6 +157,8 @@ function createWindow(): void {
 
   mainWindow.on('ready-to-show', () => {
     mainWindow.show()
+  
+    require('./gamification').checkAchievements(mainWindow);
   })
   
   mainWindow.webContents.setWindowOpenHandler((details) => {

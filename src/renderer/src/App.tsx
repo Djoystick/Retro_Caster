@@ -7,6 +7,8 @@ import { QueueView } from './components/QueueView'
 import { QueueItem } from './types/queue'
 import { AchievementPopup } from './components/AchievementPopup'
 
+const MEDAL_ICONS: Record<string, string> = { first_contact: '🛸', triple_threat: '🌍', '100_broadcasts': '📡', hot_streak: '🔥', the_survivor: '💀' }
+
 const LANGUAGES = [
   { code: 'en', label: 'ENGLISH' },
   { code: 'ru', label: 'РУССКИЙ' },

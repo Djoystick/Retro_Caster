@@ -47,13 +47,13 @@
 - [x] Smart metadata templates: Dynamic titles with {title} and {date} variables.
 - [x] Thumbnail Extraction: Download native Twitch thumbnails and attach to YT/VK uploads.
 
-## Phase 9.5: Gamification Layer "Galactic Broadcast Corps" (IN PROGRESS)
+## Phase 9.5: Gamification Layer "Galactic Broadcast Corps" (COMPLETED)
 - [x] XP & Ranking System: Earn XP for uploads, display Rank in title bar.
 - [x] Broadcast Streak: Daily multipliers for consistent uploads.
-- [ ] Medals & Achievements: Track and display milestones (First Contact, Triple Threat, etc.).
+- [x] Medals & Achievements: Track and display milestones (First Contact, Triple Threat, etc.).
 - [x] Star Map (History overhaul): Re-imagine the History tab as an interactive planetary map.
-- [ ] Fleet Operations (Batch Bosses): Special UI for batch processing queues.
-- [ ] Unlockable Ship Skins: Customize the progress bar UFO based on rank/medals.
+- [x] Fleet Operations (Batch Bosses): Special UI for batch processing queues (Integrated into Queue View).
+- [x] Unlockable Ship Skins: Customize the progress bar UFO based on rank/medals.
 
 ## Phase 10: Polish & Release
 - [x] **Pre-flight Validation UI**: Green checkmarks for VK/TG access rights to verify token/admin rights *before* starting the heavy pipeline.
