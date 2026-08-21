@@ -1,4 +1,4 @@
-﻿import store from './store'
+﻿import store, { awardXP } from './store'
 
 export const MEDALS = [
   { id: 'first_contact', name: 'First Contact', description: 'Первая успешная загрузка в приложении', icon: '🛸' },
@@ -60,7 +60,7 @@ export function processMissionXP(mainWindow: any, successPlatforms: string[], du
     xpGained += 50 // Endurance Run
   }
 
-  const { awardXP } = require('./store')
+  
   const oldG = store.get('gamification')
   const oldRank = oldG.rank
   

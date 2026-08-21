@@ -9,7 +9,8 @@ import icon from '../../resources/icon.png?asset'
 import { authenticateYouTube } from './youtube'
 import { authenticateVK, validateVkToken } from './vk'
 import { validateTgToken } from './telegram'
-import { getGamification, getHistory, getSecureToken, setSecureToken } from './store'
+import { getGamification, getHistory, getSecureToken, setSecureToken, setEquippedShip } from './store'
+import { checkAchievements } from './gamification'
 
 let tray: Tray | null = null
 let isQuitting = false
@@ -92,7 +93,7 @@ function createWindow(): void {
 
   ipcMain.handle('get-gamification', () => getGamification())
   ipcMain.handle('set-equipped-ship', (_, ship: string) => {
-    const { setEquippedShip } = require('./store')
+    
     return setEquippedShip(ship)
   })
   ipcMain.handle('get-history', () => getHistory())
@@ -158,7 +159,7 @@ function createWindow(): void {
   mainWindow.on('ready-to-show', () => {
     mainWindow.show()
   
-    require('./gamification').checkAchievements(mainWindow);
+    checkAchievements(mainWindow);
   })
   
   mainWindow.webContents.setWindowOpenHandler((details) => {
