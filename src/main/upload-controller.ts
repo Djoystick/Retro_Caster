@@ -21,6 +21,7 @@ export interface UploadConfig {
   useTg: boolean
   tgTrim?: TrimConfig
   autoDelete: boolean
+  thumbnailUrl?: string
 
   ytClientId?: string
   ytClientSecret?: string
@@ -105,7 +106,7 @@ export async function executeMasterUpload(
         }
         
         const res = await withRetry('YouTube Upload', () => uploadToYouTube(
-          config.ytClientId!, config.ytClientSecret!, config.ytRefreshToken!, targetPath, title,
+          config.ytClientId!, config.ytClientSecret!, config.ytRefreshToken!, targetPath, title, config.thumbnailUrl,
           (percent, status) => { mainWindow.webContents.send('upload-progress-yt', { percent, status }) }
         ), (attempt) => {
           mainWindow.webContents.send('upload-progress-yt', { percent: 0, status: `Повторная попытка ${attempt}/3...` })

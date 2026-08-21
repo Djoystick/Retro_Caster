@@ -234,6 +234,8 @@ function App() {
   
   const [tempDownloadDir, setTempDownloadDir] = useState(() => localStorage.getItem('appDownloadDir') || '')
   const [tempLanguage, setTempLanguage] = useState(() => localStorage.getItem('appLanguage') || 'ru')
+  const [titleTemplate, setTitleTemplate] = useState(() => localStorage.getItem('appTitleTemplate') || '{title}')
+  const [tempTitleTemplate, setTempTitleTemplate] = useState(titleTemplate)
   const [tempYtClientId, setTempYtClientId] = useState(() => localStorage.getItem('ytClientId') || '324713293746' + '-kgtorfl6qphu31d' + '5aa18ni3bb1acgpfn.apps.googleusercontent.com')
   const [tempYtClientSecret, setTempYtClientSecret] = useState(() => localStorage.getItem('ytClientSecret') || 'GOCSPX-E' + 'QjfO0-RTUa' + '3CT1X2YIJy5Bx8K0s')
   const [tempVkToken, setTempVkToken] = useState(() => localStorage.getItem('vkToken') || 'vk1.a.SURR5qJV7K9tR8GmUF00NPmi6_BWvpxr67bgZAK_E2AkJTZeaAZ9jgEHeUdTT1ICr0xLqbDqdu4AQhlwXQuWEcbrrIhMowRfBXohRdKz0ajz_VYQVbVrrcWCLguSw7NtJKaHjqAIYAtpgwCUoy0QXXf5K7f-uAdX9BNyEE_7a9kLEiAu4w_lIQ307nXfz0I8WoOa7TTAkn04kkRM5ixgBg')
@@ -460,10 +462,15 @@ function App() {
 
   
   const addToQueue = () => {
+    const formattedTitle = titleTemplate
+      .replace('{title}', videoData.title)
+      .replace('{date}', new Date().toLocaleDateString('ru-RU'))
+      
     const newItem: QueueItem = {
       id: Date.now().toString(),
       url: twitchUrl,
-      title: videoData.title,
+      title: formattedTitle,
+      thumbnailUrl: videoData?.thumbnail,
       config: {
         useYt, ytTrim: ytTrimEnabled ? { start: ytTrimStart, end: ytTrimEnd } : undefined,
         useVk, vkTrim: vkTrimEnabled ? { start: vkTrimStart, end: vkTrimEnd } : undefined,

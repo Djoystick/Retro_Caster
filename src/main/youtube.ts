@@ -1,3 +1,6 @@
+import axios from 'axios'
+import os from 'os'
+import path from 'path'
 import log from 'electron-log/main';
 import { google } from 'googleapis';
 import express from 'express';
@@ -101,6 +104,7 @@ export async function uploadToYouTube(
   refreshToken: string,
   videoPath: string,
   title: string,
+  thumbnailUrl: string | undefined,
   onProgress: (percent: number, status: string) => void
 ): Promise<{ success: boolean; error?: string }> {
   try {
@@ -120,7 +124,7 @@ export async function uploadToYouTube(
     while (attempts < maxAttempts) {
       try {
         attempts++;
-        await youtube.videos.insert(
+        const res = await youtube.videos.insert(
           {
             part: ['snippet', 'status'],
             requestBody: {
@@ -149,7 +153,28 @@ export async function uploadToYouTube(
             }
           }
         );
-        break; // Success, exit loop
+        
+          // Thumbnail upload
+          if (thumbnailUrl && res.data.id) {
+            try {
+              onProgress(100, 'Загрузка обложки стрима...');
+              const thumbRes = await axios.get(thumbnailUrl, { responseType: 'arraybuffer' });
+              const tempThumbPath = path.join(os.tmpdir(), `thumb_${Date.now()}.jpg`);
+              require('fs').writeFileSync(tempThumbPath, thumbRes.data);
+              
+              await youtube.thumbnails.set({
+                videoId: res.data.id,
+                media: {
+                  body: require('fs').createReadStream(tempThumbPath)
+                }
+              });
+              
+              require('fs').unlinkSync(tempThumbPath);
+            } catch (err) {
+              console.error('Thumbnail upload failed:', err);
+            }
+          }
+          break; // Success, exit loop
       } catch (err: any) {
         if (attempts >= maxAttempts) {
           throw err;

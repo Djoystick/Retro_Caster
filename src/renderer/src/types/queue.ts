@@ -19,6 +19,7 @@ export interface QueueItem {
   id: string;
   url: string;
   title: string;
+  thumbnailUrl?: string;
   config: QueueConfig;
   status: QueueStatus;
   progressPercent?: number;
