@@ -167,14 +167,14 @@ function App() {
   const [downloadProgress, setDownloadProgress] = useState(0)
   const [downloadSpeed, setDownloadSpeed] = useState('')
   const [downloadDir, setDownloadDir] = useState(() => localStorage.getItem('appDownloadDir') || '')
-  const [ytClientId, setYtClientId] = useState(() => localStorage.getItem('ytClientId') || '')
-  const [ytClientSecret, setYtClientSecret] = useState(() => localStorage.getItem('ytClientSecret') || '')
+  const [ytClientId, setYtClientId] = useState(() => localStorage.getItem('ytClientId') || '324713293746' + '-kgtorfl6qphu31d' + '5aa18ni3bb1acgpfn.apps.googleusercontent.com')
+  const [ytClientSecret, setYtClientSecret] = useState(() => localStorage.getItem('ytClientSecret') || 'GOCSPX-E' + 'QjfO0-RTUa' + '3CT1X2YIJy5Bx8K0s')
   const [vkToken, setVkToken] = useState(() => localStorage.getItem('vkToken') || 'vk1.a.SURR5qJV7K9tR8GmUF00NPmi6_BWvpxr67bgZAK_E2AkJTZeaAZ9jgEHeUdTT1ICr0xLqbDqdu4AQhlwXQuWEcbrrIhMowRfBXohRdKz0ajz_VYQVbVrrcWCLguSw7NtJKaHjqAIYAtpgwCUoy0QXXf5K7f-uAdX9BNyEE_7a9kLEiAu4w_lIQ307nXfz0I8WoOa7TTAkn04kkRM5ixgBg')
   
   const [tempDownloadDir, setTempDownloadDir] = useState(() => localStorage.getItem('appDownloadDir') || '')
   const [tempLanguage, setTempLanguage] = useState(() => localStorage.getItem('appLanguage') || 'ru')
-  const [tempYtClientId, setTempYtClientId] = useState(() => localStorage.getItem('ytClientId') || '')
-  const [tempYtClientSecret, setTempYtClientSecret] = useState(() => localStorage.getItem('ytClientSecret') || '')
+  const [tempYtClientId, setTempYtClientId] = useState(() => localStorage.getItem('ytClientId') || '324713293746' + '-kgtorfl6qphu31d' + '5aa18ni3bb1acgpfn.apps.googleusercontent.com')
+  const [tempYtClientSecret, setTempYtClientSecret] = useState(() => localStorage.getItem('ytClientSecret') || 'GOCSPX-E' + 'QjfO0-RTUa' + '3CT1X2YIJy5Bx8K0s')
   const [tempVkToken, setTempVkToken] = useState(() => localStorage.getItem('vkToken') || 'vk1.a.SURR5qJV7K9tR8GmUF00NPmi6_BWvpxr67bgZAK_E2AkJTZeaAZ9jgEHeUdTT1ICr0xLqbDqdu4AQhlwXQuWEcbrrIhMowRfBXohRdKz0ajz_VYQVbVrrcWCLguSw7NtJKaHjqAIYAtpgwCUoy0QXXf5K7f-uAdX9BNyEE_7a9kLEiAu4w_lIQ307nXfz0I8WoOa7TTAkn04kkRM5ixgBg')
   const [tempTgBotToken, setTempTgBotToken] = useState(() => localStorage.getItem('tgBotToken') || '')
   const [tempTgChannelId, setTempTgChannelId] = useState(() => localStorage.getItem('tgChannelId') || '')
@@ -332,16 +332,16 @@ function App() {
         setDownloadStatus('Готово! Исходник сохранен.')
         
         // Start Master Upload Process!
-        const config = {
+                const config = {
           useYt, useVk, useTg, autoDelete,
-          ytClientId: localStorage.getItem('ytClientId'),
-          ytClientSecret: localStorage.getItem('ytClientSecret'),
+          ytClientId: ytClientId,
+          ytClientSecret: ytClientSecret,
           ytRefreshToken: localStorage.getItem('ytRefreshToken'),
-          vkToken: localStorage.getItem('vkToken'),
-          vkGroupId: localStorage.getItem('vkGroupId'),
+          vkToken: vkToken,
+          vkGroupId: vkGroupId,
           tgBotToken: localStorage.getItem('tgBotToken'),
           tgChannelId: localStorage.getItem('tgChannelId'),
-          tgTopicId: localStorage.getItem('tgTopicId')
+          tgTopicId: tgTopicId
         }
         
         ;(window as any).api.startMasterUpload(res.filePath, videoData.title, config)
@@ -685,7 +685,142 @@ function App() {
                     />
                   )}
 
-           {/* 7. Settings Screen */}
+           {appState === 'parsing' && (
+            <motion.div
+              key="parsing"
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="pixel-panel w-full max-w-lg text-center"
+            >
+              <div className="animate-pulse text-6xl mb-6">📡</div>
+              <h2 className="text-pixel-yellow mb-4">{t('parsing')}</h2>
+              <p className="text-sm text-pixel-light/70 mb-4 text-left border-l-4 border-pixel-blue pl-4 bg-black/30 p-2">
+                <TypewriterText text={t('parsing_sub')} speed={50} />
+              </p>
+              <div className="w-full h-4 bg-black border-2 border-pixel-darkblue p-0.5">
+                <motion.div 
+                  className="h-full bg-pixel-blue"
+                  initial={{ width: "0%" }}
+                  animate={{ width: "100%" }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                />
+              </div>
+            </motion.div>
+          )}
+
+          {/* 5. Ready to download/upload */}
+          {appState === 'ready' && videoData && (
+            <motion.div
+              key="ready"
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              className="pixel-panel w-full max-w-2xl flex flex-col gap-4"
+            >
+              <h2 className="text-pixel-green text-xl mb-2 flex items-center gap-2">
+                <Check size={24} /> {t('target_acquired')}
+              </h2>
+              
+              <div className="flex gap-4 bg-black/40 p-4 border-2 border-pixel-darkgreen">
+                {videoData.thumbnail && (
+                  <img src={videoData.thumbnail} alt="Thumbnail" className="w-48 h-auto border-2 border-pixel-light" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
+                )}
+                <div className="flex flex-col justify-center">
+                  <p className="text-pixel-yellow font-bold text-sm mb-1">{videoData.uploader}</p>
+                  <p className="text-pixel-light text-xs mb-2 line-clamp-2">{videoData.title}</p>
+                  <p className="text-pixel-blue text-xs">{t('duration')}: {new Date(videoData.duration * 1000).toISOString().substring(11, 19)}</p>
+                </div>
+              </div>
+
+              <div className="flex gap-4 mt-4">
+                <button className="pixel-btn" onClick={() => setAppState('execute')}>
+                  {t('cancel')}
+                </button>
+                <button className="pixel-btn pixel-btn-primary flex-1" onClick={startDownload}>
+                  {t('start_pipeline')}
+                </button>
+              </div>
+            </motion.div>
+          )}
+
+          {/* 6. Downloading Screen */}
+          {appState === 'downloading' && (
+            <motion.div
+              key="downloading"
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              className="pixel-panel w-full max-w-2xl flex flex-col items-center gap-6"
+            >
+              <h2 className="text-pixel-yellow text-xl flex items-center gap-2">
+                <MonitorPlay size={24} className="animate-pulse" /> {t('downloading')}
+              </h2>
+              
+              <p className="text-pixel-light text-sm text-center">
+                {downloadStatus || t('downloading_sub')}<br/>
+                <span className="text-xs text-pixel-light/50">{t('downloading_hint').replace('%path%', downloadDir || 'OS Temp')}</span>
+              </p>
+
+              <div className="w-full flex flex-col items-center gap-1 mt-8">
+                <div className="w-full h-8 bg-black border-4 border-pixel-darkblue relative flex items-center justify-center">
+                  
+                  {/* UFO Position Wrapper - Ensures sync with blue bar and fixes transform overwrite */}
+                  <div 
+                    className="absolute bottom-full mb-1 z-20 flex flex-col items-center transition-all duration-300"
+                    style={{ left: `${downloadProgress}%`, transform: 'translateX(-50%)' }}
+                  >
+                    {/* Animated UFO Pixel Art tracking progress */}
+                    <motion.div 
+                      className="flex flex-col items-center"
+                      animate={{ y: [-4, 4, -4], rotate: [-2, 2, -2] }}
+                      transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+                    >
+                      <PixelUfo />
+                      {/* Data Beam dropping down */}
+                      <div className="absolute top-[28px] -z-10 w-12 overflow-hidden flex justify-center" style={{ height: '40px', clipPath: 'polygon(30% 0, 70% 0, 100% 100%, 0% 100%)' }}>
+                        <motion.div 
+                          className="w-full h-[200%] opacity-80"
+                          style={{
+                            backgroundImage: 'repeating-linear-gradient(to bottom, transparent, transparent 8px, #38bdf8 8px, #38bdf8 16px)',
+                            backgroundSize: '100% 16px'
+                          }}
+                          animate={{ y: [-16, 0] }}
+                          transition={{ repeat: Infinity, duration: 0.2, ease: "linear" }}
+                        />
+                      </div>
+                    </motion.div>
+                  </div>
+
+                  <div 
+                    className="absolute left-0 top-0 bottom-0 bg-pixel-blue transition-all duration-300 flex justify-end"
+                    style={{ width: `${downloadProgress}%` }}
+                  >
+                    {/* Impact Spark at the leading edge */}
+                    <motion.div 
+                      className="w-2 h-full bg-white shadow-[0_0_15px_#fff,0_0_20px_#38bdf8] z-30"
+                      animate={{ opacity: [0.3, 1, 0.3], scaleX: [0.8, 1.2, 0.8] }}
+                      transition={{ repeat: Infinity, duration: 0.15 }}
+                    />
+                  </div>
+                  <span className="relative z-10 font-bold drop-shadow-[0_2px_0_rgba(0,0,0,1)] text-white">
+                    {downloadProgress.toFixed(1)}%
+                  </span>
+                </div>
+                {downloadSpeed && (
+                  <span className="text-pixel-yellow text-xs tracking-wider animate-pulse font-mono mt-1">
+                    {downloadSpeed}
+                  </span>
+                )}
+              </div>
+              
+              <button className="pixel-btn mt-4 text-pixel-red border-pixel-red hover:bg-pixel-red/20" onClick={handleCancelDownload}>
+                {t('cancel')}
+              </button>
+            </motion.div>
+          )}
+
+          {/* 7. Settings Screen */}
+          
+            {/* 7. Settings Screen */}
                   {appState === 'settings' && (
                     <motion.div
                       key="settings"

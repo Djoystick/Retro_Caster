@@ -1,4 +1,4 @@
-﻿import { app, shell, BrowserWindow, ipcMain } from 'electron'
+import { app, shell, BrowserWindow, ipcMain, Tray, Menu, Notification, nativeImage } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import ytDlp from 'yt-dlp-exec'
@@ -10,6 +10,9 @@ import { authenticateYouTube } from './youtube'
 import { authenticateVK, validateVkToken } from './vk'
 import { validateTgToken } from './telegram'
 import { getGamification, getHistory, getSecureToken, setSecureToken } from './store'
+
+let tray: Tray | null = null
+let isQuitting = false
 
 function createWindow(): void {
   const mainWindow = new BrowserWindow({
@@ -30,6 +33,20 @@ function createWindow(): void {
     }
   })
 
+  mainWindow.on('close', (event) => {
+    if (!isQuitting) {
+      event.preventDefault()
+      mainWindow.hide()
+      if (Notification.isSupported()) {
+        new Notification({
+          title: 'RetroCaster',
+          body: 'Работает в фоновом режиме',
+          icon: nativeImage.createFromPath(icon)
+        }).show()
+      }
+    }
+  })
+
   ipcMain.on('log-error', (_, errorStr: string) => {
     require('fs').appendFileSync(
       require('path').join(app.getPath('userData'), 'ui-crash.log'),
@@ -38,7 +55,7 @@ function createWindow(): void {
   })
 
   ipcMain.on('window-minimize', () => mainWindow.minimize())
-  ipcMain.on('window-close', () => mainWindow.close())
+  ipcMain.on('window-close', () => mainWindow.close()) // This will trigger the hide logic above
 
   ipcMain.handle('parse-url', async (_, url: string) => {
     try {
@@ -90,8 +107,22 @@ function createWindow(): void {
     async (_, videoPath: string, title: string, config: any) => {
       try {
         await executeMasterUpload(mainWindow, videoPath, title, config)
+        if (Notification.isSupported()) {
+          new Notification({
+            title: 'RetroCaster',
+            body: `Миссия завершена: ${title}`,
+            icon: nativeImage.createFromPath(icon)
+          }).show()
+        }
         return { success: true }
       } catch (err: any) {
+        if (Notification.isSupported()) {
+          new Notification({
+            title: 'RetroCaster Ошибка',
+            body: `Пайплайн прерван: ${err.message}`,
+            icon: nativeImage.createFromPath(icon)
+          }).show()
+        }
         return { success: false, error: err.message }
       }
     }
@@ -101,8 +132,9 @@ function createWindow(): void {
   setupDownloadEngine(mainWindow)
 
   mainWindow.on('ready-to-show', () => {
-    mainWindow.show() // mainWindow.webContents.openDevTools();
-  }) // mainWindow.webContents.openDevTools();
+    mainWindow.show()
+  })
+  
   mainWindow.webContents.setWindowOpenHandler((details) => {
     shell.openExternal(details.url)
     return { action: 'deny' }
@@ -120,7 +152,37 @@ app.whenReady().then(() => {
   app.on('browser-window-created', (_, window) => {
     optimizer.watchWindowShortcuts(window)
   })
+  
   createWindow()
+
+  // Setup Tray
+  tray = new Tray(nativeImage.createFromPath(icon))
+  tray.setToolTip('RetroCaster - Pipeline Active')
+  
+  const contextMenu = Menu.buildFromTemplate([
+    { 
+      label: 'Развернуть (Show)', 
+      click: () => {
+        if (BrowserWindow.getAllWindows().length === 0) createWindow()
+        else BrowserWindow.getAllWindows()[0].show()
+      }
+    },
+    { type: 'separator' },
+    { 
+      label: 'Выход (Quit)', 
+      click: () => {
+        isQuitting = true
+        app.quit()
+      }
+    }
+  ])
+  tray.setContextMenu(contextMenu)
+  
+  tray.on('click', () => {
+    if (BrowserWindow.getAllWindows().length === 0) createWindow()
+    else BrowserWindow.getAllWindows()[0].show()
+  })
+
   app.on('activate', function () {
     if (BrowserWindow.getAllWindows().length === 0) createWindow()
   })

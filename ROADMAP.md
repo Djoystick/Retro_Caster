@@ -58,6 +58,6 @@
 
 ## Phase 10: Polish & Release
 - [x] **Pre-flight Validation UI**: Green checkmarks for VK/TG access rights to verify token/admin rights *before* starting the heavy pipeline.
-- [ ] System Tray integration: Run in background and send OS notifications upon completion.
+- [x] System Tray integration: Run in background and send OS notifications upon completion.
 - [ ] Package .exe using electron-builder for distribution.
 - [ ] Final testing, bug fixes, and translation checks for all languages.

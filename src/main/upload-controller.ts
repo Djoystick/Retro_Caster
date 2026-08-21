@@ -1,3 +1,4 @@
+import { processMissionXP } from './gamification';
 import log from 'electron-log/main';
 import { uploadToYouTube } from './youtube'
 import { uploadToVK } from './vk'
@@ -130,7 +131,7 @@ export async function executeMasterUpload(
   }
 
   
-  const { processMissionXP } = require('./gamification');
+  
   // assuming duration is unknown here, we pass 0, and we don't have retry logic yet so isSurvivor = false
   let xpGained = processMissionXP(mainWindow, successPlatforms, 0, false);
 
