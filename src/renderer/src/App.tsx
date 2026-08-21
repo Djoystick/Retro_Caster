@@ -3,6 +3,8 @@ import React, { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Check, Settings, UploadCloud, Trash2, MonitorPlay, History, Crosshair, Scissors, Package, HelpCircle, X } from 'lucide-react'
 import { Dashboard } from './components/Dashboard'
+import { QueueView } from './components/QueueView'
+import { QueueItem } from './types/queue'
 import { AchievementPopup } from './components/AchievementPopup'
 
 const LANGUAGES = [
@@ -30,6 +32,59 @@ const TypewriterText = ({ text, delay = 0, speed = 40 }: { text: string, delay?:
   }, [text, delay, speed])
 
   return <span>{displayedText}</span>
+}
+
+// Platform Export Card with Inline Trimming
+const PlatformExportCard = ({ label, checked, onChange, icon: Icon, trimEnabled, onTrimToggle, trimStart, onTrimStartChange, trimEnd, onTrimEndChange }: any) => {
+  return (
+    <div className={`flex flex-col border-2 transition-colors ${checked ? 'bg-pixel-darkblue/20 border-pixel-blue' : 'bg-black/30 border-transparent hover:bg-black/50'}`}>
+      <div 
+        className="flex items-center gap-3 p-3 cursor-pointer"
+        onClick={() => onChange(!checked)}
+      >
+        <div className={`w-6 h-6 border-2 flex items-center justify-center shrink-0 ${checked ? 'border-pixel-green bg-pixel-darkgreen text-pixel-dark' : 'border-gray-500 bg-black'}`}>
+          {checked && <Check size={16} strokeWidth={4} />}
+        </div>
+        <Icon size={18} className={checked ? "text-pixel-light" : "text-gray-500"} />
+        <span className={`text-sm flex-1 ${checked ? 'text-pixel-light' : 'text-gray-400'}`}>{label}</span>
+        
+        {checked && (
+          <button 
+            onClick={(e) => { e.stopPropagation(); onTrimToggle(!trimEnabled); }}
+            className={`flex items-center gap-2 px-2 py-1 border rounded text-[10px] transition-colors ${trimEnabled ? 'border-pixel-amber text-pixel-amber bg-pixel-amber/10' : 'border-gray-600 text-gray-400 hover:text-pixel-light'}`}
+          >
+            <Scissors size={12} />
+            {trimEnabled ? 'ОБРЕЗКА ВКЛ' : 'ОБРЕЗАТЬ'}
+          </button>
+        )}
+      </div>
+      
+      {checked && trimEnabled && (
+        <div className="flex items-center gap-4 p-3 pt-0 border-t border-pixel-blue/30 mt-1">
+          <div className="flex items-center gap-2 text-pixel-amber text-[10px]">
+            <span>СТАРТ:</span>
+            <input 
+              type="text" 
+              value={trimStart} 
+              onChange={(e) => onTrimStartChange(e.target.value)}
+              className="bg-black/50 border border-pixel-amber/50 px-2 py-1 outline-none text-pixel-light font-mono w-24"
+              placeholder="00:00:00"
+            />
+          </div>
+          <div className="flex items-center gap-2 text-pixel-amber text-[10px]">
+            <span>КОНЕЦ:</span>
+            <input 
+              type="text" 
+              value={trimEnd} 
+              onChange={(e) => onTrimEndChange(e.target.value)}
+              className="bg-black/50 border border-pixel-amber/50 px-2 py-1 outline-none text-pixel-light font-mono w-24"
+              placeholder="00:00:00"
+            />
+          </div>
+        </div>
+      )}
+    </div>
+  )
 }
 
 // Custom animated checkbox
@@ -140,9 +195,15 @@ const BootSequence = ({ onComplete }: { onComplete: () => void }) => {
 function App() {
   const { t, i18n } = useTranslation()
   const [pipelineActive, setPipelineActive] = useState(false)
-  const [appState, setAppState] = useState<'lang_select' | 'boot_sequence' | 'execute' | 'parsing' | 'ready' | 'downloading' | 'settings' | 'api_guide' | 'success' | 'uploading' | 'dashboard' | 'history'>('lang_select')
+  const [appState, setAppState] = useState<'lang_select' | 'boot_sequence' | 'execute' | 'parsing' | 'ready' | 'downloading' | 'settings' | 'api_guide' | 'success' | 'uploading' | 'dashboard' | 'history' | 'queue'>('lang_select')
   const [navSection, setNavSection] = useState<'mission' | 'settings' | 'history' | 'trim' | 'queue'>('mission')
+  
   const [activeInstruction, setActiveInstruction] = useState<string | null>(null)
+  
+  // Queue state
+  const [queue, setQueue] = useState<QueueItem[]>([])
+  const [isQueueRunning, setIsQueueRunning] = useState(false)
+
     const [activeSettingsTab, setActiveSettingsTab] = useState<'general' | 'youtube' | 'vk' | 'telegram' | 'rutube' | 'dzen'>('general')
   const [globalAlert, setGlobalAlert] = useState<string | null>(null)
   
@@ -187,6 +248,19 @@ function App() {
   const [useYt, setUseYt] = useState(true)
   const [useVk, setUseVk] = useState(true)
   const [useTg, setUseTg] = useState(true)
+  // Trimming State
+  const [ytTrimEnabled, setYtTrimEnabled] = useState(false)
+  const [ytTrimStart, setYtTrimStart] = useState('00:00:00')
+  const [ytTrimEnd, setYtTrimEnd] = useState('00:00:00')
+
+  const [vkTrimEnabled, setVkTrimEnabled] = useState(false)
+  const [vkTrimStart, setVkTrimStart] = useState('00:00:00')
+  const [vkTrimEnd, setVkTrimEnd] = useState('00:00:00')
+
+  const [tgTrimEnabled, setTgTrimEnabled] = useState(false)
+  const [tgTrimStart, setTgTrimStart] = useState('00:00:00')
+  const [tgTrimEnd, setTgTrimEnd] = useState('00:00:00')
+
   const [autoDelete, setAutoDelete] = useState(() => localStorage.getItem('appAutoDelete') === 'true')
   const [downloadStatus, setDownloadStatus] = useState('')
   const [ytProgress, setYtProgress] = useState(0)
@@ -288,6 +362,31 @@ function App() {
     ;(window as any).electron.ipcRenderer.send('window-close')
   }
 
+  
+  // Keyboard LB / RB Simulation
+  useEffect(() => {
+    if (appState !== 'settings') return;
+    
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'q' || e.key === 'Q') {
+        const tabs = ['general', 'youtube', 'vk', 'telegram', 'rutube', 'dzen'];
+        setActiveSettingsTab(prev => {
+          const idx = tabs.indexOf(prev);
+          return tabs[(idx - 1 + tabs.length) % tabs.length] as any;
+        });
+      } else if (e.key === 'e' || e.key === 'E') {
+        const tabs = ['general', 'youtube', 'vk', 'telegram', 'rutube', 'dzen'];
+        setActiveSettingsTab(prev => {
+          const idx = tabs.indexOf(prev);
+          return tabs[(idx + 1) % tabs.length] as any;
+        });
+      }
+    };
+    
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [appState]);
+
   const handleParseUrl = async () => {
     if (!twitchUrl) {
       setErrorMsg('Please enter a valid Twitch URL!')
@@ -359,6 +458,97 @@ function App() {
     }
   }
 
+  
+  const addToQueue = () => {
+    const newItem: QueueItem = {
+      id: Date.now().toString(),
+      url: twitchUrl,
+      title: videoData.title,
+      config: {
+        useYt, ytTrim: ytTrimEnabled ? { start: ytTrimStart, end: ytTrimEnd } : undefined,
+        useVk, vkTrim: vkTrimEnabled ? { start: vkTrimStart, end: vkTrimEnd } : undefined,
+        useTg, tgTrim: tgTrimEnabled ? { start: tgTrimStart, end: tgTrimEnd } : undefined,
+        autoDelete
+      },
+      status: 'pending'
+    }
+    setQueue(prev => [...prev, newItem])
+    setAppState('queue')
+    setNavSection('queue')
+  }
+
+  // Queue Worker
+  useEffect(() => {
+    if (!isQueueRunning) return;
+
+    const processNext = async () => {
+      const nextItem = queue.find(q => q.status === 'pending');
+      if (!nextItem) {
+        setIsQueueRunning(false);
+        return;
+      }
+
+      // Mark as downloading
+      setQueue(prev => prev.map(q => q.id === nextItem.id ? { ...q, status: 'downloading' } : q));
+      
+      // Reset global dashboard state for this item
+      setPipelineActive(true)
+      setDownloadProgress(0)
+      setDownloadSpeed('')
+      setDownloadStatus('')
+      setYtProgress(0)
+      setVkProgress(0)
+      setTgProgress(0)
+      setYtStatus('')
+      setVkStatus('')
+      setTgStatus('')
+
+      try {
+        const res = await (window as any).api.downloadVod(nextItem.url, nextItem.title, downloadDir)
+        if (res.success) {
+          setQueue(prev => prev.map(q => q.id === nextItem.id ? { ...q, status: 'uploading' } : q));
+          
+          const ytRefreshToken = await (window as any).api.secureStoreGet('ytRefreshToken');
+          const vkToken = await (window as any).api.secureStoreGet('vkToken');
+          const tgBotToken = await (window as any).api.secureStoreGet('tgBotToken');
+          const tgChannelId = await (window as any).api.secureStoreGet('tgChannelId');
+
+          const config = {
+            useYt: nextItem.config.useYt, 
+            useVk: nextItem.config.useVk, 
+            useTg: nextItem.config.useTg, 
+            autoDelete: nextItem.config.autoDelete,
+            ytClientId: ytClientId,
+            ytClientSecret: ytClientSecret,
+            ytRefreshToken: ytRefreshToken || localStorage.getItem('ytRefreshToken'),
+            vkToken: vkToken || localStorage.getItem('vkToken'),
+            vkGroupId: vkGroupId,
+            tgBotToken: tgBotToken || localStorage.getItem('tgBotToken'),
+            tgChannelId: tgChannelId || localStorage.getItem('tgChannelId'),
+            tgTopicId: tgTopicId
+          }
+          
+          const uploadRes = await (window as any).api.startMasterUpload(res.filePath, nextItem.title, config)
+          if (uploadRes.success) {
+            setQueue(prev => prev.map(q => q.id === nextItem.id ? { ...q, status: 'completed' } : q));
+          } else {
+            setQueue(prev => prev.map(q => q.id === nextItem.id ? { ...q, status: 'error', errorMessage: uploadRes.error } : q));
+          }
+        } else {
+          setQueue(prev => prev.map(q => q.id === nextItem.id ? { ...q, status: 'error', errorMessage: res.error } : q));
+        }
+      } catch (e: any) {
+        setQueue(prev => prev.map(q => q.id === nextItem.id ? { ...q, status: 'error', errorMessage: e.message } : q));
+      }
+      
+    }
+
+    if (!queue.some(q => q.status === 'downloading' || q.status === 'uploading')) {
+      processNext();
+    }
+  }, [queue, isQueueRunning])
+
+
   const handleCancelDownload = async () => {
     await (window as any).api.cancelDownload()
     setAppState('ready')
@@ -420,7 +610,7 @@ function App() {
             </div>
           </div>
           <div className="flex gap-6 items-center opacity-80">
-            <span className="text-[10px] text-pixel-cyan tracking-[0.2em] font-bold drop-shadow-[0_0_5px_rgba(65,166,246,0.8)]">INSERT COIN</span>
+            <span className="text-[10px] text-pixel-cyan tracking-[0.2em] font-bold drop-shadow-[0_0_5px_rgba(65,166,246,0.8)] animate-pulse">INSERT COIN</span>
             <span className="text-[10px] text-pixel-amber tracking-[0.2em] font-bold drop-shadow-[0_0_2px_rgba(0,0,0,1)]">CREDIT: 99</span>
           </div>
           <div className="flex gap-1">
@@ -455,8 +645,7 @@ function App() {
                     { id: 'mission',  Icon: Crosshair, label: 'START',   active: true },
                     { id: 'settings', Icon: Settings,  label: 'ОПЦИИ', active: true },
                     { id: 'history',  Icon: History,   label: 'РЕКОРДЫ',  active: true },
-                    { id: 'trim',     Icon: Scissors,  label: 'ОБРЕЗКА',  active: false },
-                    { id: 'queue',    Icon: Package,   label: 'ОЧЕРЕДЬ',  active: false },
+                    { id: 'queue',    Icon: Package,   label: 'ОЧЕРЕДЬ',  active: true },
                   ].map(({ id, Icon, label, active }) => {
                     const isCurrent = navSection === id
                     return (
@@ -470,13 +659,15 @@ function App() {
                         onClick={() => {
                           if (active) {
                             setNavSection(id as any)
-                            if (id === 'mission') {
-                              if (appState === 'settings' || appState === 'api_guide' || appState === 'history') setAppState('execute')
-                            } else if (id === 'settings') {
-                              setAppState('settings')
-                            } else if (id === 'history') {
-                              setAppState('history')
-                            }
+                                                          if (id === 'mission') {
+                                if (appState === 'settings' || appState === 'api_guide' || appState === 'history' || appState === 'queue') setAppState('execute')
+                              } else if (id === 'settings') {
+                                setAppState('settings')
+                              } else if (id === 'history') {
+                                setAppState('history')
+                              } else if (id === 'queue') {
+                                setAppState('queue')
+                              }
                           }
                         }}
                       >
@@ -485,7 +676,7 @@ function App() {
                         <span className={`text-[7px] tracking-wider ${isCurrent ? 'text-pixel-cyan' : 'text-pixel-light-dim'}`}>
                           {label}
                         </span>
-                        {!active && <span className="absolute top-1 right-1 text-[5px] text-pixel-amber">WIP</span>}
+                        {id === 'queue' && queue.length > 0 && <span className="absolute top-1 right-1 text-[7px] text-pixel-cyan bg-pixel-blue/30 px-1 rounded-full">{queue.length}</span>}
                       </button>
                     )
                   })}
@@ -628,9 +819,24 @@ function App() {
                       </div>
 
                       <div className="flex flex-col gap-2 mb-8">
-                        <PixelCheckbox label={t('upload_yt')} checked={useYt} onChange={() => setUseYt(!useYt)} icon={UploadCloud} />
-                        <PixelCheckbox label={t('upload_vk')} checked={useVk} onChange={() => setUseVk(!useVk)} icon={UploadCloud} />
-                        <PixelCheckbox label={t('upload_tg')} checked={useTg} onChange={() => setUseTg(!useTg)} icon={UploadCloud} />
+                        <PlatformExportCard 
+                            label={t('upload_yt')} checked={useYt} onChange={setUseYt} icon={UploadCloud}
+                            trimEnabled={ytTrimEnabled} onTrimToggle={setYtTrimEnabled}
+                            trimStart={ytTrimStart} onTrimStartChange={setYtTrimStart}
+                            trimEnd={ytTrimEnd} onTrimEndChange={setYtTrimEnd}
+                          />
+                        <PlatformExportCard 
+                            label={t('upload_vk')} checked={useVk} onChange={setUseVk} icon={UploadCloud}
+                            trimEnabled={vkTrimEnabled} onTrimToggle={setVkTrimEnabled}
+                            trimStart={vkTrimStart} onTrimStartChange={setVkTrimStart}
+                            trimEnd={vkTrimEnd} onTrimEndChange={setVkTrimEnd}
+                          />
+                        <PlatformExportCard 
+                            label={t('upload_tg')} checked={useTg} onChange={setUseTg} icon={UploadCloud}
+                            trimEnabled={tgTrimEnabled} onTrimToggle={setTgTrimEnabled}
+                            trimStart={tgTrimStart} onTrimStartChange={setTgTrimStart}
+                            trimEnd={tgTrimEnd} onTrimEndChange={setTgTrimEnd}
+                          />
                         
                         <div className="mt-2 pt-4 border-t border-pixel-light/10">
                           <PixelCheckbox label={t('auto_delete')} checked={autoDelete} onChange={() => { const val = !autoDelete; setAutoDelete(val); localStorage.setItem('appAutoDelete', String(val)); }} icon={Trash2} />
@@ -736,8 +942,8 @@ function App() {
                 <button className="pixel-btn" onClick={() => setAppState('execute')}>
                   {t('cancel')}
                 </button>
-                <button className="pixel-btn pixel-btn-primary flex-1" onClick={startDownload}>
-                  {t('start_pipeline')}
+                <button className="pixel-btn pixel-btn-primary flex-1" onClick={addToQueue}>
+                  "ДОБАВИТЬ В ОЧЕРЕДЬ"
                 </button>
               </div>
             </motion.div>
@@ -821,45 +1027,88 @@ function App() {
           {/* 7. Settings Screen */}
           
             {/* 7. Settings Screen */}
+                  
+                  {appState === 'queue' && (
+                    <motion.div
+                      key="queue"
+                      initial={{ scale: 0.95, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      className="w-full h-full"
+                    >
+                      <QueueView 
+                        queue={queue} 
+                        isQueueRunning={isQueueRunning} 
+                        onStartQueue={() => setIsQueueRunning(true)} 
+                        onStopQueue={() => setIsQueueRunning(false)} 
+                        onRemoveItem={(id) => setQueue(q => q.filter(i => i.id !== id))} 
+                      />
+                    </motion.div>
+                  )}
+                  
                   {appState === 'settings' && (
                     <motion.div
-                      key="settings"
-                      initial={{ scale: 0.9, opacity: 0 }}
-                      animate={{ scale: 1, opacity: 1 }}
-                      exit={{ scale: 0.9, opacity: 0 }}
-                      className="pixel-panel w-full max-w-[550px] flex flex-col gap-1.5 !border-x-4 !border-y-0 !border-[#ffaa00] relative !p-4"
-                    >
-                      <h2 className="text-[#ffaa00] text-lg text-center pb-1 mb-1 tracking-widest uppercase font-bold drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)]">
-                        SETTINGS
-                      </h2>
-                      
-                      {/* Tabs Header */}
-                      <div className="flex gap-2 border-b border-pixel-darkblue/50 pb-2 mb-2 shrink-0 justify-center text-[9px] font-bold tracking-widest items-center whitespace-nowrap overflow-hidden">
-                        <span className="text-[#ffaa00] flex shrink-0 items-center gap-1">&larr; LB</span>
-                        
-                        {[
-                          { id: 'general', label: 'ОБЩИЕ' },
-                          { id: 'youtube', label: 'YOUTUBE' },
-                          { id: 'vk', label: 'VK' },
-                          { id: 'telegram', label: 'TELEGRAM' },
-                          { id: 'rutube', label: 'RUTUBE' },
-                          { id: 'dzen', label: 'ДЗЕН' }
-                        ].map((tab, idx, arr) => (
-                          <React.Fragment key={tab.id}>
-                            <button 
-                              className={`transition-colors uppercase shrink-0 ${activeSettingsTab === tab.id ? 'text-[#ffaa00] border border-[#ffaa00] px-1 py-0.5 rounded-sm bg-[#ffaa00]/10' : 'text-[#ff3333] hover:text-[#ff3333]/80'}`}
-                              onClick={() => setActiveSettingsTab(tab.id as any)}
-                            >
-                              {tab.label}
-                            </button>
-                            {idx < arr.length - 1 && <span className="text-[#ff3333]/50 shrink-0">/</span>}
-                          </React.Fragment>
-                        ))}
-                        
-                        <span className="text-[#ffaa00] flex shrink-0 items-center gap-1">RB &rarr;</span>
-                      </div>
-
-                      {/* Content Area - No fixed height, tightly packed */}
+  key="settings"
+  initial={{ scale: 0.9, opacity: 0 }}
+  animate={{ scale: 1, opacity: 1 }}
+  exit={{ scale: 0.9, opacity: 0 }}
+  className="w-full max-w-[650px] relative p-1 bg-[#ffaa00] shadow-[0_0_20px_rgba(255,170,0,0.4)]"
+>
+  <div className="w-full h-full bg-black/95 border-2 border-black border-t-[#ffcc44] border-l-[#ffcc44] border-r-[#cc8800] border-b-[#cc8800] p-4 flex flex-col gap-1">
+    
+    {/* Header with Title and Bumpers */}
+    <div className="flex w-full justify-between items-center mb-2 px-1">
+      {/* LB Bumper */}
+      <button 
+        className="text-black bg-[#ffaa00] border-b-4 border-[#cc8800] active:border-b-0 active:translate-y-1 flex shrink-0 items-center justify-center hover:brightness-125 px-3 py-1.5 rounded-sm transition-all text-[11px] font-black shadow-[0_0_10px_rgba(255,170,0,0.5)]"
+        onClick={() => {
+          const tabs = ['general', 'youtube', 'vk', 'telegram', 'rutube', 'dzen'];
+          const idx = tabs.indexOf(activeSettingsTab);
+          setActiveSettingsTab(tabs[(idx - 1 + tabs.length) % tabs.length] as any);
+        }}
+      >
+        &larr; LB [Q]
+      </button>
+      
+      <h2 className="text-[#ffaa00] text-xl tracking-[0.2em] uppercase font-black drop-shadow-[0_2px_0_rgba(0,0,0,1)] flex items-center">
+        SETTINGS<span className="animate-pulse ml-1">█</span>
+      </h2>
+      
+      {/* RB Bumper */}
+      <button 
+        className="text-black bg-[#ffaa00] border-b-4 border-[#cc8800] active:border-b-0 active:translate-y-1 flex shrink-0 items-center justify-center hover:brightness-125 px-3 py-1.5 rounded-sm transition-all text-[11px] font-black shadow-[0_0_10px_rgba(255,170,0,0.5)]"
+        onClick={() => {
+          const tabs = ['general', 'youtube', 'vk', 'telegram', 'rutube', 'dzen'];
+          const idx = tabs.indexOf(activeSettingsTab);
+          setActiveSettingsTab(tabs[(idx + 1) % tabs.length] as any);
+        }}
+      >
+        [E] RB &rarr;
+      </button>
+    </div>
+    
+    {/* Scrollable Tabs Area */}
+    <div className="flex w-full justify-center items-center overflow-x-auto custom-scrollbar whitespace-nowrap text-[9px] font-bold tracking-widest px-4 pb-2 mb-2 border-b-2 border-pixel-darkblue/50 shrink-0">
+      {[
+        { id: 'general', label: 'ОБЩИЕ' },
+        { id: 'youtube', label: 'YOUTUBE' },
+        { id: 'vk', label: 'VK' },
+        { id: 'telegram', label: 'TELEGRAM' },
+        { id: 'rutube', label: 'RUTUBE' },
+        { id: 'dzen', label: 'ДЗЕН' }
+      ].map((tab, idx, arr) => (
+        <React.Fragment key={tab.id}>
+          <button 
+            className={`transition-colors uppercase shrink-0 ${activeSettingsTab === tab.id ? 'text-[#ffaa00] border border-[#ffaa00] px-1 py-0.5 rounded-sm bg-[#ffaa00]/10 shadow-[0_0_5px_rgba(255,170,0,0.5)]' : 'text-[#ff3333] hover:text-[#ffaa00]'}`}
+            onClick={() => setActiveSettingsTab(tab.id as any)}
+          >
+            {tab.label}
+          </button>
+          {idx < arr.length - 1 && <span className="text-[#ff3333]/50 shrink-0 mx-2">/</span>}
+        </React.Fragment>
+      ))}
+    </div>
+    
+    {/* Content Area - No fixed height, tightly packed */}
                       <div className="flex flex-col gap-3 px-1 w-full">
                         
                         {activeSettingsTab === 'general' && (
@@ -1191,12 +1440,13 @@ function App() {
                               onClick={() => setActiveInstruction(null)}
                             >
                               ПОНЯТНО
-                            </button>
+                              </button>
                           </motion.div>
                         )}
                       </AnimatePresence>
-                    </motion.div>
-                  )}
+                    </div>
+                  </motion.div>
+                )}
 {/* 8. Success Screen */}
           {appState === 'success' && (
             <motion.div
@@ -1285,8 +1535,8 @@ function App() {
                 <button className="arcade-btn text-pixel-red border-pixel-red hover:bg-pixel-red/20" onClick={() => { setAppState('execute'); setNavSection('mission'); }}>
                   {t('cancel')}
                 </button>
-                <button className="arcade-btn arcade-btn-primary" onClick={startDownload}>
-                  {t('start_upload', 'START RUN')}
+                <button className="arcade-btn arcade-btn-primary" onClick={addToQueue}>
+                  "ДОБАВИТЬ В ОЧЕРЕДЬ"
                 </button>
               </div>
 

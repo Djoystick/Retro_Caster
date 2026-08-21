@@ -1,4 +1,4 @@
-import { app, shell, BrowserWindow, ipcMain, Tray, Menu, Notification, nativeImage } from 'electron'
+import { app, shell, BrowserWindow, ipcMain, Tray, Menu, Notification, nativeImage, dialog } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import ytDlp from 'yt-dlp-exec'
@@ -33,17 +33,36 @@ function createWindow(): void {
     }
   })
 
-  mainWindow.on('close', (event) => {
+  mainWindow.on('close', async (event) => {
     if (!isQuitting) {
       event.preventDefault()
-      mainWindow.hide()
-      if (Notification.isSupported()) {
-        new Notification({
-          title: 'RetroCaster',
-          body: 'Работает в фоновом режиме',
-          icon: nativeImage.createFromPath(icon)
-        }).show()
+      
+      const { response } = await dialog.showMessageBox(mainWindow, {
+        type: 'question',
+        buttons: ['Свернуть в трей', 'Закрыть программу', 'Отмена'],
+        defaultId: 0,
+        cancelId: 2,
+        title: 'RetroCaster',
+        message: 'Что вы хотите сделать?',
+        detail: 'Программа может продолжить работу в фоновом режиме (в трее).'
+      })
+
+      if (response === 0) {
+        // Свернуть в трей
+        mainWindow.hide()
+        if (Notification.isSupported()) {
+          new Notification({
+            title: 'RetroCaster',
+            body: 'Работает в фоновом режиме',
+            icon: nativeImage.createFromPath(icon)
+          }).show()
+        }
+      } else if (response === 1) {
+        // Закрыть полностью
+        isQuitting = true
+        app.quit()
       }
+      // response === 2 (Отмена) -> ничего не делаем
     }
   })
 
@@ -132,7 +151,7 @@ function createWindow(): void {
       }
     }
   )
-  ipcMain.handle('tg-validate-token', async (_, token: string) => await validateTgToken(token))
+  
 
   setupDownloadEngine(mainWindow)
 

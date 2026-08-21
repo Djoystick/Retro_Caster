@@ -27,9 +27,9 @@
 - [x] VK API integration (Video Upload via axios).
 - [x] Dashboard Mission Control: Progress bars and parallel status indicators for each platform.
 
-## Phase 6: Security & Core Architecture (NEW)
-- [ ] Migrate sensitive API tokens (YT, VK, TG) from localStorage to encrypted backend store.
-- [ ] Embed external binaries (ffmpeg, yt-dlp) into extraResources for absolute portability.
+## Phase 6: Security & Core Architecture (COMPLETED)
+- [x] Migrate sensitive API tokens (YT, VK, TG) from localStorage to encrypted backend store.
+- [x] Embed external binaries (ffmpeg, yt-dlp) into extraResources for absolute portability.
 
 ## Phase 7: Post-Processing & Database (COMPLETED)
 - [x] Automatic "Auto-Delete" feature to clean up raw VODs and chunks after upload.
@@ -42,8 +42,8 @@
 
 ## Phase 9: Advanced Features (IN PROGRESS)
 - [x] **PiP Dashboard (Picture-in-Picture)**: Реализовать свободное перемещение по окнам программы во время выгрузки. При переходе в Настройки или Историю, окно дашборда должно плавно и красиво сворачиваться в угол (PiP), а при клике — разворачиваться обратно.
-- [ ] **Advanced Trimming & Multi-Routing**: Нарезка видео на тайминги и заливка разных частей на разные платформы (например, вырезать кусок с фильмом, чтобы избежать бана за АП на YouTube, и залить туда только игру, а полную версию отправить в VK).
-- [ ] **Batch Processing (Очередь)**: Последовательная заливка нескольких видео. Возможность поставить задачи для списка VOD'ов и уйти спать, пока программа автономно качает, режет и выгружает всю очередь.
+- [x] **Advanced Trimming & Multi-Routing**: Нарезка видео на тайминги и заливка разных частей на разные платформы (например, вырезать кусок с фильмом, чтобы избежать бана за АП на YouTube, и залить туда только игру, а полную версию отправить в VK).
+- [x] **Batch Processing (Очередь)**: Последовательная заливка нескольких видео. Возможность поставить задачи для списка VOD'ов и уйти спать, пока программа автономно качает, режет и выгружает всю очередь.
 - [ ] Smart metadata templates: Dynamic titles with {title} and {date} variables.
 - [ ] Thumbnail Extraction: Download native Twitch thumbnails and attach to YT/VK uploads.
 
