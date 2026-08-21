@@ -102,6 +102,11 @@ function createWindow(): void {
     }
   })
   ipcMain.handle('vk-validate-token', async (_, token: string) => await validateVkToken(token))
+  ipcMain.handle('tg-validate-token', async (_, token: string) => await validateTgToken(token))
+
+  ipcMain.handle('get-secure-token', (_, key: string) => getSecureToken(key))
+  ipcMain.handle('set-secure-token', (_, key: string, value: string) => setSecureToken(key, value))
+
   ipcMain.handle(
     'start-master-upload',
     async (_, videoPath: string, title: string, config: any) => {
@@ -141,7 +146,7 @@ function createWindow(): void {
   })
 
   if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
-    mainWindow.loadURL(process.env['ELECTRON_RENDERER_URL'])
+    mainWindow.loadURL(process.env['ELECTRON_RENDERER_URL'].replace('localhost', '127.0.0.1'))
   } else {
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
   }

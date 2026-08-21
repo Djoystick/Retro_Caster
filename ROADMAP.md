@@ -40,13 +40,12 @@
 - [x] Smart Retries (Exponential Backoff) for network drops (e.g. YouTube ECONNRESET).
 - [ ] Download Resume: Enable yt-dlp continuation if download gets interrupted.
 
-## Phase 9: Advanced Features (NEW)
-- [x] **PiP Dashboard (Picture-in-Picture)**: Плавное сворачивание активного Дашборда загрузки в угол экрана при переходе в Настройки или Историю (полная свобода навигации во время выгрузки).
-- [ ] **Advanced Trimming & Multi-Routing**: Нарезка видео на независимые куски и раздельная маршрутизация по платформам (например: полный VOD с фильмом -> VK, вырезанный кусок только с игрой -> YouTube, чтобы избежать страйков за АП).
-- [ ] Video Trimming: Базовый выбор Start/End time для скачивания.
+## Phase 9: Advanced Features (IN PROGRESS)
+- [x] **PiP Dashboard (Picture-in-Picture)**: Реализовать свободное перемещение по окнам программы во время выгрузки. При переходе в Настройки или Историю, окно дашборда должно плавно и красиво сворачиваться в угол (PiP), а при клике — разворачиваться обратно.
+- [ ] **Advanced Trimming & Multi-Routing**: Нарезка видео на тайминги и заливка разных частей на разные платформы (например, вырезать кусок с фильмом, чтобы избежать бана за АП на YouTube, и залить туда только игру, а полную версию отправить в VK).
+- [ ] **Batch Processing (Очередь)**: Последовательная заливка нескольких видео. Возможность поставить задачи для списка VOD'ов и уйти спать, пока программа автономно качает, режет и выгружает всю очередь.
 - [ ] Smart metadata templates: Dynamic titles with {title} and {date} variables.
 - [ ] Thumbnail Extraction: Download native Twitch thumbnails and attach to YT/VK uploads.
-- [ ] Batch Processing: Queueing multiple Twitch URLs for overnight processing.
 
 ## Phase 9.5: Gamification Layer "Galactic Broadcast Corps" (IN PROGRESS)
 - [x] XP & Ranking System: Earn XP for uploads, display Rank in title bar.
@@ -61,3 +60,9 @@
 - [x] System Tray integration: Run in background and send OS notifications upon completion.
 - [ ] Package .exe using electron-builder for distribution.
 - [ ] Final testing, bug fixes, and translation checks for all languages.
+
+## Phase 11: Безопасная компиляция и Стилизованный Установщик (NEW)
+- [ ] **Надежная сборка (electron-builder):** Использовать проверенный движок NSIS, чтобы исключить баги.
+- [ ] **Пиксельный дизайн установщика:** Стилизовать стандартный установщик NSIS под наш UI (добавить ретро-иконки, пиксельный фоновый рисунок `.bmp` и кастомные цвета), чтобы сохранить атмосферу без риска создания нестабильного кастомного распаковщика.
+- [ ] **Portable-версия (Запасной вариант):** Сгенерировать `portable` .exe, который вообще не требует установки и запускается сразу в нашем интерфейсе (нулевой риск сбоев инсталлятора).
+- [ ] **Изоляция бинарников (extraResources):** Безопасно вшить `ffmpeg` и `yt-dlp` внутрь установщика, чтобы они гарантированно работали на любом ПК без танцев с бубном.

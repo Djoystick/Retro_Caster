@@ -187,7 +187,7 @@ function App() {
   const [useYt, setUseYt] = useState(true)
   const [useVk, setUseVk] = useState(true)
   const [useTg, setUseTg] = useState(true)
-  const [autoDelete, setAutoDelete] = useState(false)
+  const [autoDelete, setAutoDelete] = useState(() => localStorage.getItem('appAutoDelete') === 'true')
   const [downloadStatus, setDownloadStatus] = useState('')
   const [ytProgress, setYtProgress] = useState(0)
   const [ytStatus, setYtStatus] = useState('')
@@ -336,11 +336,11 @@ function App() {
           useYt, useVk, useTg, autoDelete,
           ytClientId: ytClientId,
           ytClientSecret: ytClientSecret,
-          ytRefreshToken: localStorage.getItem('ytRefreshToken'),
-          vkToken: vkToken,
+          ytRefreshToken: await (window as any).api.secureStoreGet('ytRefreshToken') || localStorage.getItem('ytRefreshToken'),
+          vkToken: await (window as any).api.secureStoreGet('vkToken') || vkToken,
           vkGroupId: vkGroupId,
-          tgBotToken: localStorage.getItem('tgBotToken'),
-          tgChannelId: localStorage.getItem('tgChannelId'),
+          tgBotToken: await (window as any).api.secureStoreGet('tgBotToken') || localStorage.getItem('tgBotToken'),
+          tgChannelId: await (window as any).api.secureStoreGet('tgChannelId') || localStorage.getItem('tgChannelId'),
           tgTopicId: tgTopicId
         }
         
@@ -633,7 +633,7 @@ function App() {
                         <PixelCheckbox label={t('upload_tg')} checked={useTg} onChange={() => setUseTg(!useTg)} icon={UploadCloud} />
                         
                         <div className="mt-2 pt-4 border-t border-pixel-light/10">
-                          <PixelCheckbox label={t('auto_delete')} checked={autoDelete} onChange={() => setAutoDelete(!autoDelete)} icon={Trash2} />
+                          <PixelCheckbox label={t('auto_delete')} checked={autoDelete} onChange={() => { const val = !autoDelete; setAutoDelete(val); localStorage.setItem('appAutoDelete', String(val)); }} icon={Trash2} />
                         </div>
                       </div>
 
@@ -943,12 +943,19 @@ function App() {
                             <button 
                               className="arcade-btn w-full bg-[#ff3333]/10 border-[#ff3333] text-[#ff3333] hover:bg-[#ff3333] hover:text-white !py-1.5 mt-1 text-[9px]"
                               onClick={async () => {
-                                const authUrl = await (window as any).api.ytGetAuthUrl(tempYtClientId, tempYtClientSecret)
-                                if (authUrl) {
-                                  (window as any).api.openExternal(authUrl)
-                                  setAppState('api_guide')
-                                }
-                              }}
+                                  try {
+                                    const res = await (window as any).api.youtubeAuth(tempYtClientId, tempYtClientSecret);
+                                    if (res.success && res.refreshToken) {
+                                      localStorage.setItem('ytRefreshToken', res.refreshToken); (window as any).api.secureStoreSet('ytRefreshToken', res.refreshToken);
+                                      setGlobalAlert('✓ YouTube успешно подключен: ' + res.accountName);
+                                      setAppState('execute'); setTimeout(() => setAppState('settings'), 10);
+                                    } else {
+                                      setGlobalAlert('❌ Ошибка авторизации: ' + (res.error || 'Отменено'));
+                                    }
+                                  } catch (e: any) {
+                                    setGlobalAlert('❌ Ошибка: ' + e.message);
+                                  }
+                                }}
                             >
                               АВТОРИЗОВАТЬ КАНАЛ YOUTUBE
                             </button>
@@ -1107,14 +1114,14 @@ function App() {
                             localStorage.setItem('ytClientSecret', tempYtClientSecret)
                             
                             setVkToken(tempVkToken)
-                            localStorage.setItem('vkToken', tempVkToken)
+                            localStorage.setItem('vkToken', tempVkToken); (window as any).api.secureStoreSet('vkToken', tempVkToken)
                             setVkGroupId(tempVkGroupId)
                             localStorage.setItem('vkGroupId', tempVkGroupId)
                             setVkPostToWall(tempVkPostToWall)
                             localStorage.setItem('vkPostToWall', tempVkPostToWall ? 'true' : 'false')
         
                             
-                            localStorage.setItem('tgBotToken', tempTgBotToken)
+                            localStorage.setItem('tgBotToken', tempTgBotToken); (window as any).api.secureStoreSet('tgBotToken', tempTgBotToken)
                             
                             localStorage.setItem('tgChannelId', tempTgChannelId)
                             setTgTopicId(tempTgTopicId)

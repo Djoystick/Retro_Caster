@@ -45,12 +45,17 @@ export async function authenticateYouTube(clientId: string, clientSecret: string
         
         // Fetch channel name just to confirm
         const youtube = google.youtube({ version: 'v3', auth: oauth2Client });
-        const channelRes = await youtube.channels.list({
-          part: ['snippet'],
-          mine: true
-        });
-        
-        const channelName = channelRes.data.items?.[0]?.snippet?.title || 'Unknown Channel';
+          let channelName = 'Неизвестный канал';
+          try {
+            const channelRes = await youtube.channels.list({
+              part: ['snippet'],
+              mine: true
+            });
+            channelName = channelRes.data.items?.[0]?.snippet?.title || 'Unknown Channel';
+          } catch (apiErr: any) {
+            console.error('Failed to fetch channel name:', apiErr.message);
+            channelName = 'Канал подключен (сеть)';
+          }
         
         res.send(`
           <div style="font-family: sans-serif; padding: 40px; text-align: center;">

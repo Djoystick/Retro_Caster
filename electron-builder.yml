@@ -11,10 +11,14 @@ files:
   - '!{tsconfig.json,tsconfig.node.json,tsconfig.web.json}'
 asarUnpack:
   - resources/**
+  - node_modules/yt-dlp-exec/bin/**
+  - node_modules/@ffmpeg-installer/**
+  - node_modules/@ffprobe-installer/**
 win:
   executableName: retrocaster-app
   target:
     - target: nsis
+    - target: portable
 nsis:
   oneClick: false
   allowToChangeInstallationDirectory: true
