@@ -55,7 +55,7 @@ export async function uploadToTelegram(
       
       onProgress(Math.round((i / videoParts.length) * 100), `Загрузка части ${i+1}/${videoParts.length} на сервер Telegram...`)
       
-      const { CustomFile } = eval("require('telegram/client/uploads')")
+      const { CustomFile } = require('telegram/client/uploads')
       const file = new CustomFile(path.basename(partPath), stat.size, partPath)
       
       const uploaded = await client.uploadFile({

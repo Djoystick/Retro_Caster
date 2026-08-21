@@ -75,6 +75,11 @@ async function executeTrim(inputPath: string, trimConfig: TrimConfig, platform: 
 
     reporter(0, '✂️ Нарезка видео (Fast Copy)...');
     
+    const timeRegex = /^\d{2}:\d{2}:\d{2}$/;
+    if (!timeRegex.test(trimConfig.start) || !timeRegex.test(trimConfig.end)) {
+      return reject(new Error("Безопасность: Неверный формат времени обрезки (ожидается HH:MM:SS)"));
+    }
+
     ffmpeg(inputPath)
       .inputOptions([`-ss ${trimConfig.start}`])
       .outputOptions([`-to ${trimConfig.end}`, '-c copy'])
