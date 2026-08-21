@@ -55,11 +55,11 @@
 - [x] Fleet Operations (Batch Bosses): Special UI for batch processing queues (Integrated into Queue View).
 - [x] Unlockable Ship Skins: Customize the progress bar UFO based on rank/medals.
 
-## Phase 10: Polish & Release
+## Phase 10: Polish & Release (COMPLETED)
 - [x] **Pre-flight Validation UI**: Green checkmarks for VK/TG access rights to verify token/admin rights *before* starting the heavy pipeline.
 - [x] System Tray integration: Run in background and send OS notifications upon completion.
-- [ ] Package .exe using electron-builder for distribution.
-- [ ] Final testing, bug fixes, and translation checks for all languages.
+- [x] Package .exe using electron-builder for distribution.
+- [x] Final testing, bug fixes, and translation checks for all languages.
 
 ## Phase 11: Безопасная компиляция и Стилизованный Установщик (NEW)
 - [ ] **Надежная сборка (electron-builder):** Использовать проверенный движок NSIS, чтобы исключить баги.

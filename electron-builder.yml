@@ -1,5 +1,5 @@
-appId: com.electron.app
-productName: retrocaster-app
+appId: com.djoystick.retrocaster
+productName: RetroCaster
 directories:
   buildResources: build
 files:
@@ -15,16 +15,18 @@ asarUnpack:
   - node_modules/@ffmpeg-installer/**
   - node_modules/@ffprobe-installer/**
 win:
-  executableName: retrocaster-app
+  executableName: RetroCaster
   target:
     - target: nsis
     - target: portable
+portable:
+  artifactName: RetroCaster-Portable-v${version}.exe
 nsis:
   oneClick: false
   allowToChangeInstallationDirectory: true
-  artifactName: retrocaster-app-${version}-setup.exe
-  shortcutName: retrocaster-app
-  uninstallDisplayName: retrocaster-app
+  artifactName: RetroCaster-Installer-v${version}.exe
+  shortcutName: RetroCaster
+  uninstallDisplayName: RetroCaster
   createDesktopShortcut: always
 mac:
   entitlementsInherit: build/entitlements.mac.plist
