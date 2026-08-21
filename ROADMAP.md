@@ -40,12 +40,12 @@
 - [x] Smart Retries (Exponential Backoff) for network drops (e.g. YouTube ECONNRESET).
 - [ ] Download Resume: Enable yt-dlp continuation if download gets interrupted.
 
-## Phase 9: Advanced Features (IN PROGRESS)
+## Phase 9: Advanced Features (COMPLETED)
 - [x] **PiP Dashboard (Picture-in-Picture)**: Реализовать свободное перемещение по окнам программы во время выгрузки. При переходе в Настройки или Историю, окно дашборда должно плавно и красиво сворачиваться в угол (PiP), а при клике — разворачиваться обратно.
 - [x] **Advanced Trimming & Multi-Routing**: Нарезка видео на тайминги и заливка разных частей на разные платформы (например, вырезать кусок с фильмом, чтобы избежать бана за АП на YouTube, и залить туда только игру, а полную версию отправить в VK).
 - [x] **Batch Processing (Очередь)**: Последовательная заливка нескольких видео. Возможность поставить задачи для списка VOD'ов и уйти спать, пока программа автономно качает, режет и выгружает всю очередь.
-- [ ] Smart metadata templates: Dynamic titles with {title} and {date} variables.
-- [ ] Thumbnail Extraction: Download native Twitch thumbnails and attach to YT/VK uploads.
+- [x] Smart metadata templates: Dynamic titles with {title} and {date} variables.
+- [x] Thumbnail Extraction: Download native Twitch thumbnails and attach to YT/VK uploads.
 
 ## Phase 9.5: Gamification Layer "Galactic Broadcast Corps" (IN PROGRESS)
 - [x] XP & Ranking System: Earn XP for uploads, display Rank in title bar.
