@@ -17,22 +17,14 @@ asarUnpack:
 win:
   executableName: RetroCaster
   target:
-    - target: nsis
+    - target: squirrel
     - target: portable
+squirrelWindows:
+  loadingGif: build/installer.gif
+  iconUrl: https://raw.githubusercontent.com/Djoystick/Retro_Caster/main/build/icon.ico
+  setupIcon: build/icon.ico
 portable:
   artifactName: RetroCaster-Portable-v${version}.exe
-nsis:
-  oneClick: false
-  allowToChangeInstallationDirectory: true
-  artifactName: RetroCaster-Installer-v${version}.exe
-  shortcutName: RetroCaster
-  uninstallDisplayName: RetroCaster
-  createDesktopShortcut: always
-  installerIcon: build/icon.ico
-  uninstallerIcon: build/icon.ico
-  installerSidebar: build/installerSidebar.bmp
-  uninstallerSidebar: build/installerSidebar.bmp
-  installerHeader: build/installerHeader.bmp
 mac:
   entitlementsInherit: build/entitlements.mac.plist
   extendInfo:
