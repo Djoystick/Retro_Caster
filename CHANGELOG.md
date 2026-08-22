@@ -1,5 +1,8 @@
-# Changelog
+﻿# Changelog
 
+## [1.2.7] - Bugfix (2026-08-22)
+### 🐛 Fixed
+- **Critical Fix:** Устранена ошибка TypeError: Cannot read properties of undefined (reading 'onDownloadProgress'), из-за которой пользователи сталкивались с вылетами приложения после установки (в production-сборке). Из-за некорректной обработки переменной \process.contextIsolated\ интерфейс отключался от IPC-коммуникации с Electron. Теперь \contextBridge\ инициализируется принудительно, обеспечивая надежную работу API.
 ## [1.2.6] - Security Update (2026-08-21)
 ### 🔒 Security (Security Audit Fixes)
 - **Critical:** Устранена уязвимость RCE (Remote Code Execution) через `shell.openExternal`. Теперь программа жестко валидирует все внешние ссылки, разрешая открывать только безопасные протоколы (`http://` и `https://`), блокируя выполнение локальных файлов (`file://`, `smb://`).
@@ -66,3 +69,4 @@
 ### Changed
 - Shifted internal parsing logic to securely store and fetch tokens locally via safeStorage.
 - Refactored App.tsx state management for cleaner startup routines.
+
