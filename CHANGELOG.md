@@ -1,4 +1,4 @@
-﻿# Changelog
+# Changelog
 
 ## [1.2.7] - Bugfix (2026-08-22)
 ### 🐛 Fixed
