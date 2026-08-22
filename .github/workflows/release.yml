@@ -3,14 +3,13 @@
 on:
   push:
     tags:
-      - 'v*' # Trigger on tags starting with v (e.g., v1.2.7)
+      - 'v*'
 
 jobs:
   release:
     name: Build and Release on Windows
     runs-on: windows-latest
     
-    # Needs permissions to create a release and upload assets
     permissions:
       contents: write
 
@@ -21,10 +20,10 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 18
 
       - name: Install dependencies
-        run: npm install
+        run: npm install --legacy-peer-deps
 
       - name: Build and Publish Release
         env:
