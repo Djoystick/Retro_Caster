@@ -1,4 +1,4 @@
-{
+﻿{
   "name": "retrocaster-app",
   "version": "1.2.7",
   "description": "An Electron application with React and TypeScript",
@@ -14,7 +14,7 @@
     "start": "electron-vite preview",
     "dev": "electron-vite dev",
     "build": "npm run typecheck && electron-vite build",
-    "postinstall": "electron-builder install-app-deps",
+    
     "build:unpack": "npm run build && electron-builder --dir",
     "build:win": "npm run build && electron-builder --win",
     "build:mac": "electron-vite build && electron-builder --mac",
@@ -67,3 +67,4 @@
     "vite": "^7.2.6"
   }
 }
+
