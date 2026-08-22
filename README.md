@@ -21,6 +21,30 @@
 
 ---
 
+## 📸 Галерея интерфейса (Screenshots)
+
+<div align="center">
+  <img src="docs/screenshots/retro_main.png" alt="RetroCaster Main UI" width="800" style="border-radius: 8px; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.5);" />
+  
+  <p><i>Эстетика киберпанка и старых аркадных автоматов с объемной рамкой, VHS-помехами и неоновой сеткой.</i></p>
+</div>
+
+<details>
+<summary><b>Показать больше скриншотов (Click to view more)</b></summary>
+<br>
+
+<div align="center">
+  <img src="docs/screenshots/retro_queue.png" alt="Queue Menu" width="600" style="border-radius: 8px; margin-bottom: 10px;" />
+  <br>
+  <img src="docs/screenshots/retro_settings.png" alt="Settings Menu" width="600" style="border-radius: 8px; margin-bottom: 10px;" />
+  <br>
+  <img src="docs/screenshots/retro_upload.png" alt="Upload Process" width="600" style="border-radius: 8px;" />
+</div>
+
+</details>
+
+---
+
 ## ✨ Ключевые возможности (Features)
 
 ## 1. Скачивание и Парсинг
